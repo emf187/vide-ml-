@@ -1,0 +1,6 @@
+{
+  "mae_hours": 14.107377052307129,
+  "anomaly_acc": 0.9920634920634921,
+  "fault_type_acc": 0.996031746031746,
+  "source": "synthetic_bootstrap"
+}

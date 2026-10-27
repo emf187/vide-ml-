@@ -1,0 +1,12 @@
+[Unit]
+Description=Vide Industrial Edge API
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=on-failure
+WorkingDirectory=C:\Users\Mike Edeimu\OneDrive\Belgeler\vide ml
+
+[Install]
+WantedBy=multi-user.target

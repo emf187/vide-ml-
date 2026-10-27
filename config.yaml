@@ -1,0 +1,237 @@
+factory:
+  id: "factory-001"
+  name: "Default Factory"
+  timezone: "UTC"
+
+communication:
+  mqtt:
+    enabled: false
+    broker: "localhost"
+    port: 1883
+    username: null
+    password: null
+    client_id: "vide-industrial"
+    topics:
+      subscribe: "factory/{factory_id}/sensors/+/data"
+    qos: 1
+    keepalive_seconds: 60
+    reconnect:
+      initial_delay_ms: 1000
+      max_delay_ms: 30000
+      backoff_multiplier: 2.0
+      max_retries: null
+
+  http:
+    enabled: false
+    pollers:
+      - name: "esp32-device-001"
+        url: "http://192.168.1.100/readings"
+        interval_seconds: 5
+        timeout_seconds: 3
+        headers: {}
+
+  serial:
+    enabled: false
+    ports:
+      - port: "/dev/ttyUSB0"
+        baud_rate: 115200
+        data_bits: 8
+        parity: "none"
+        stop_bits: 1
+        timeout_seconds: 1
+
+sensors:
+  types:
+    electrical_meter:
+      parameters:
+        - name: "voltage_v"
+          unit: "V"
+          min: 0
+          max: 500
+          nominal: 230.0
+        - name: "current_amps"
+          unit: "A"
+          min: 0
+          max: 1000
+          nominal: null
+        - name: "power_kw"
+          unit: "kW"
+          min: 0
+          max: 1000
+          nominal: null
+        - name: "power_factor"
+          unit: ""
+          min: 0
+          max: 1.2
+          nominal: 1.0
+        - name: "frequency_hz"
+          unit: "Hz"
+          min: 45
+          max: 55
+          nominal: 50.0
+        - name: "energy_kwh"
+          unit: "kWh"
+          min: 0
+          max: 1000000
+          nominal: null
+
+    temperature:
+      parameters:
+        - name: "temperature_c"
+          unit: "°C"
+          min: -50
+          max: 300
+          nominal: null
+
+    vibration:
+      parameters:
+        - name: "vibration_mm_s"
+          unit: "mm/s"
+          min: 0
+          max: 100
+          nominal: null
+        - name: "acceleration_g"
+          unit: "g"
+          min: 0
+          max: 50
+          nominal: null
+
+    pressure:
+      parameters:
+        - name: "pressure_bar"
+          unit: "bar"
+          min: 0
+          max: 500
+          nominal: null
+
+    flow:
+      parameters:
+        - name: "flow_lpm"
+          unit: "L/min"
+          min: 0
+          max: 10000
+          nominal: null
+
+equipment:
+  categories:
+    motor:
+      name: "Electric Motor"
+      default_maintenance_interval_hours: 2000
+      default_rated_load_kw: 10.0
+    pump:
+      name: "Pump"
+      default_maintenance_interval_hours: 1500
+      default_rated_load_kw: 7.5
+    compressor:
+      name: "Compressor"
+      default_maintenance_interval_hours: 1800
+      default_rated_load_kw: 15.0
+    generator:
+      name: "Generator"
+      default_maintenance_interval_hours: 2500
+      default_rated_load_kw: 50.0
+    conveyor:
+      name: "Conveyor"
+      default_maintenance_interval_hours: 3000
+      default_rated_load_kw: 5.0
+    hvac:
+      name: "HVAC System"
+      default_maintenance_interval_hours: 4000
+      default_rated_load_kw: 20.0
+    custom:
+      name: "Custom Equipment"
+      default_maintenance_interval_hours: 2000
+      default_rated_load_kw: 10.0
+
+  thresholds:
+    voltage_deviation_pct: 10.0
+    voltage_critical_pct: 15.0
+    frequency_deviation_hz: 0.5
+    frequency_critical_hz: 1.0
+    frequency_rocof_hz_per_s: 0.2
+    overload_pct: 15.0
+    overload_critical_pct: 30.0
+    underload_pct: 70.0
+    power_factor_min: 0.75
+    power_factor_min_load_pct: 40.0
+    reactive_to_apparent_ratio: 0.6
+    reactive_min_power_kw: 1.0
+    trend_increase_pct: 10.0
+    trend_min_stability_ratio: 0.1
+    sensor_min_power_for_validation: 0.5
+    sensor_min_voltage_for_power: 50.0
+
+fault_detection:
+  enabled: true
+  rolling_window_size: 10
+  rules:
+    voltage_sag: true
+    voltage_swell: true
+    frequency_instability: true
+    mechanical_overload: true
+    low_power_factor: true
+    excessive_reactive_power: true
+    mechanical_degradation: true
+    underload: true
+    sensor_anomaly: true
+
+maintenance:
+  anomaly_penalty_hours: 50
+  overload_penalty_hours_per_pct: 10
+  voltage_stress_penalty_per_point: 5
+  max_thermal_penalty_hours: 500
+  urgency:
+    critical_hours: 100
+    high_hours: 500
+    medium_hours: 1000
+
+storage:
+  database:
+    type: "sqlite"
+    path: "data/industrial.db"
+    wal_mode: true
+  retention_days:
+    raw_readings: 365
+    aggregated: 730
+
+ml:
+  enabled: true
+  model_dir: "models"
+  batch_interval_readings: 20
+  cloud_sync:
+    enabled: true
+    endpoint_url: "https://cloud-instance.example.com/forward"
+    forward_readings: true
+    check_interval_hours: 24.0
+
+llm:
+  enabled: false
+  provider: "groq"
+  api_key_env_var: "GROQ_API_KEY"
+  api_url: "https://api.groq.com/openai/v1/chat/completions"
+  model: "qwen/qwen3.6-27b"
+  temperature: 0.7
+  max_tokens: 2048
+  timeout_seconds: 30
+  context:
+    max_recent_readings: 20
+    max_recent_anomalies: 10
+    include_maintenance_prediction: true
+    include_derived_metrics: true
+    include_machine_stats: true
+
+api:
+  host: "127.0.0.1"
+  port: 8000
+  cors_origins:
+    - "http://127.0.0.1"
+    - "http://localhost"
+    - "http://10.50.2.191"  # your laptop IP on WiFi — adjust as needed
+  workers: 1
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s | %(name)-28s | %(levelname)-8s | %(message)s"
+  file_path: "logs/vide.log"
+  max_size_bytes: 104857600
+  backup_count: 5
